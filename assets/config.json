@@ -1,5 +1,5 @@
 {
   "backend": {
-    "url": "バックエンドサーバ�EのURLを指定してください。hhttps://udonarium-backend.otorimato.workers.dev"
+    "url": "https://udonarium-backend.otorimato.workers.dev/"
   }
 }
