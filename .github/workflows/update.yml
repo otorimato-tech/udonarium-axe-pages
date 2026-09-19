@@ -2,7 +2,7 @@ name: Update Udonarium Axe
 
 on:
   schedule:
-    - cron: "0 */6 * * *"  # 6時間ごとにチェック
+    - cron: "0 */6 * * *"
   workflow_dispatch:
 
 jobs:
@@ -34,15 +34,21 @@ jobs:
           mkdir axe_dist
           unzip axe.zip -d axe_dist
 
+      - name: Find dist folder
+        id: finddist
+        run: |
+          DIST_PATH=$(find axe_dist -type d -name "dist" | head -n 1)
+          echo "DIST_PATH=$DIST_PATH" >> $GITHUB_OUTPUT
+
       - name: Patch backend URL
         run: |
-          sed -i 's#"url": ""#"url": "https://udonarium-backend.otorimato.workers.dev"#' axe_dist/dist/assets/config.json
+          sed -i 's#"url": ""#"url": "https://udonarium-backend.otorimato.workers.dev"#' \
+            ${{ steps.finddist.outputs.DIST_PATH }}/assets/config.json
 
       - name: Replace Pages content
         run: |
           rm -rf *
-          cp -r axe_dist/dist/* .
-
+          cp -r ${{ steps.finddist.outputs.DIST_PATH }}/* .
 
       - name: Commit and push
         run: |
