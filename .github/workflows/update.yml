@@ -36,12 +36,13 @@ jobs:
 
       - name: Patch backend URL
         run: |
-          sed -i 's#"url": ""#"url": "https://udonarium-backend.otorimato.workers.dev"#' axe_dist/assets/config.json
+          sed -i 's#"url": ""#"url": "https://udonarium-backend.otorimato.workers.dev"#' axe_dist/dist/assets/config.json
 
       - name: Replace Pages content
         run: |
           rm -rf *
-          cp -r axe_dist/* .
+          cp -r axe_dist/dist/* .
+
 
       - name: Commit and push
         run: |
