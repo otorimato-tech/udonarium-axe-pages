@@ -16,11 +16,10 @@ jobs:
       - name: Clone Udonarium Axe
         run: git clone https://github.com/xelltis/udonarium_axe.git axe
         
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          check-latest: false
+      - name: Install Node.js 20 manually
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+          sudo apt-get install -y nodejs
           
       - name: Install dependencies
         run: |
