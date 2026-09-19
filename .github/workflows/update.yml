@@ -3,57 +3,45 @@ name: Update Udonarium Axe
 on:
   schedule:
     - cron: "0 */6 * * *"  # 6時間ごとにチェック
-  workflow_dispatch:       # 手動実行も可能
+  workflow_dispatch:
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Pages repo
         uses: actions/checkout@v3
 
-      - name: Clone Udonarium Axe
-        run: git clone https://github.com/xelltis/udonarium_axe.git axe
-        
-      - name: Install Node.js 20 manually
-        run: |
-          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-          sudo apt-get install -y nodejs
+      - name: Get latest release info
+        id: release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const res = await github.rest.repos.getLatestRelease({
+              owner: "xelltis",
+              repo: "udonarium_axe"
+            });
+            core.setOutput("url", res.data.assets[0].browser_download_url);
 
-      - name: Install build tools
+      - name: Download latest build
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            python3 \
-            libxi-dev \
-            libglu1-mesa-dev \
-            libgtk-3-dev \
-            libnss3 \
-            libxss1 \
-            libasound2 \
-            libgbm-dev
-            
-      - name: Install dependencies
+          curl -L ${{ steps.release.outputs.url }} -o axe.zip
+
+      - name: Unzip build
         run: |
-          cd axe
-          npm install
+          rm -rf axe_dist
+          mkdir axe_dist
+          unzip axe.zip -d axe_dist
 
       - name: Patch backend URL
         run: |
-          cd axe/src/assets
-          sed -i 's#"url": ""#"url": "https://udonarium-backend.otorimato.workers.dev"#' config.json.example
+          sed -i 's#"url": ""#"url": "https://udonarium-backend.otorimato.workers.dev"#' axe_dist/assets/config.json
 
-      - name: Build Axe
-        run: |
-          cd axe
-          npm run build
-
-      - name: Copy dist to Pages repo
+      - name: Replace Pages content
         run: |
           rm -rf *
-          cp -r axe/dist/* .
+          cp -r axe_dist/* .
 
       - name: Commit and push
         run: |
