@@ -34,10 +34,14 @@ jobs:
           mkdir axe_dist
           unzip axe.zip -d axe_dist
 
-      - name: Find dist folder
+      - name: Find dist folder (full recursive search)
         id: finddist
         run: |
           DIST_PATH=$(find axe_dist -type d -name "dist" | head -n 1)
+          if [ -z "$DIST_PATH" ]; then
+            echo "dist folder not found"
+            exit 2
+          fi
           echo "DIST_PATH=$DIST_PATH" >> $GITHUB_OUTPUT
 
       - name: Patch backend URL
