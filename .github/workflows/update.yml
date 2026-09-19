@@ -1,0 +1,45 @@
+name: Update Udonarium Axe
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # 6時間ごとにチェック
+  workflow_dispatch:       # 手動実行も可能
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Pages repo
+        uses: actions/checkout@v3
+
+      - name: Clone Udonarium Axe
+        run: git clone https://github.com/xelltis/udonarium_axe.git axe
+
+      - name: Install dependencies
+        run: |
+          cd axe
+          npm install
+
+      - name: Patch backend URL
+        run: |
+          cd axe/src/assets
+          sed -i 's#"url": ""#"url": "https://udonarium-backend.otorimato.workers.dev"#' config.json.example
+
+      - name: Build Axe
+        run: |
+          cd axe
+          npm run build
+
+      - name: Copy dist to Pages repo
+        run: |
+          rm -rf *
+          cp -r axe/dist/* .
+
+      - name: Commit and push
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Auto update Axe" || echo "No changes to commit"
+          git push
