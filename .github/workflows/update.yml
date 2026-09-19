@@ -15,7 +15,12 @@ jobs:
 
       - name: Clone Udonarium Axe
         run: git clone https://github.com/xelltis/udonarium_axe.git axe
-
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
       - name: Install dependencies
         run: |
           cd axe
